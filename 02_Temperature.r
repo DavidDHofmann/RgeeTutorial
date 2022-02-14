@@ -11,7 +11,6 @@ rm(list = ls())
 library(rgee)       # Interface to google earth engine
 library(tidyverse)  # For data wrangling
 library(lubridate)  # To handle dates
-library(raster)     # To handle spatial data
 
 # We first need to initialize rgee to log into our google account etc.
 ee_Initialize()
@@ -62,8 +61,11 @@ extracted <- ee_extract(
   , fun   = ee$Reducer$mean()
   , scale = metadata$band_nominal_scale
 )
+
+# Check out the extracted data
+head(extracted)
   
-# Do some cleaning
+# The data is pretty messy and needs some cleaning
 clim <- extracted %>%
   t() %>%
   as.data.frame() %>%
@@ -87,14 +89,14 @@ clim <- extracted %>%
   )
 
 # Check out the cleaned data
-head(extracted)
+head(clim)
   
 # Plot the data by month
 clim %>%
   pivot_longer(MaxTemperature:Precipitation, names_to = "Variable", values_to = "Value") %>%
   ggplot(aes(x = month(Date), y = Value, col = year(Date), group = year(Date))) +
-  geom_point(size = 0.1) +
-  geom_line(size = 0.1) +
+  geom_point(size = 1) +
+  geom_line(size = 0.3) +
   facet_wrap("Variable", scales = "free") +
   scale_color_viridis_c(option = "magma", name = "Year") +
   scale_x_continuous(breaks = seq(0, 12, 1)) +

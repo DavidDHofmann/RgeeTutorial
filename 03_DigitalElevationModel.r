@@ -10,7 +10,6 @@ rm(list = ls())
 library(rgee)       # Interface to google earth engine
 library(tidyverse)  # For data wrangling
 library(lubridate)  # To handle dates
-library(raster)     # To handle spatial data
 
 # We first need to initialize rgee to log into our google account etc.
 ee_Initialize()
@@ -49,7 +48,7 @@ Map$addLayer(dem, visParams = list(min = 0, max = 4000), name = "DEM")
 # The plot still looks a bit dull. Instead of visualizing the elevation itself,
 # let's calculate the hillshade and visualize this instead!
 Radians <- function(img) {
-  img$toFloat()$multiply(base::pi)$divide(180)
+  img$toFloat()$multiply(pi)$divide(180)
 }
 Hillshade <- function(az, ze, slope, aspect) {
   azimuth <- Radians(ee$Image(az))
@@ -76,7 +75,7 @@ Map$addLayer(hillshade_img$clip(aoi), name = "Hillshade")
 # Let's add some cool colors
 Map$centerObject(aoi)
 Map$addLayer(dem, visParams = list(min = 0, max = 2000, palette = terrain.colors(12)), name = "DEM") +
-  Map$addLayer(hillshade_img, visParams = list(opacity = 0.6), name = "Hillshade")
+Map$addLayer(hillshade_img, visParams = list(opacity = 0.6), name = "Hillshade")
 
 # What if we want to add a layer indicating water? EASY!
 water <- ee$Image("MODIS/MOD44W/MOD44W_005_2000_02_24")
@@ -96,5 +95,5 @@ water <- water$updateMask(mask)
 # Visualize again
 Map$centerObject(aoi)
 Map$addLayer(dem, visParams = list(min = 0, max = 2000, palette = terrain.colors(12)), name = "DEM") +
-  Map$addLayer(hillshade_img, visParams = list(opacity = 0.6), name = "Hillshade") +
-  Map$addLayer(water, visParams = list(min = 1, max = 1, palette = c("cornflowerblue")), name = "Watermask")
+Map$addLayer(hillshade_img, visParams = list(opacity = 0.6), name = "Hillshade") +
+Map$addLayer(water, visParams = list(min = 1, max = 1, palette = c("cornflowerblue")), name = "Watermask")

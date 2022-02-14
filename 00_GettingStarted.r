@@ -9,6 +9,7 @@ library(rgee)       # Interface to google earth engine
 library(tidyverse)  # For data wrangling
 library(lubridate)  # To handle dates
 library(raster)     # To handle spatial data
+library(viridis)    # For nice colors
 
 # We first need to initialize rgee to log into our google account etc.
 ee_Initialize()
@@ -46,7 +47,7 @@ ee_print(data)
 # Sometimes the "ee_print" function does not show you all the interesting
 # metadata. In this case, you can print all information as follows:
 meta <- ee_print(data)
-meta
+names(meta)
 
 # Usually you will want to restrict your search to a certain area of interest.
 # Let us define such an area.
@@ -66,20 +67,20 @@ poi <- ee$Geometry$Point(
 # example, we could visualize the area of interest to make sure we specified the
 # coordinates correctly.
 Map$centerObject(aoi, zoom = 8)
-  Map$addLayer(aoi) +
-  Map$addLayer(poi)
+Map$addLayer(aoi) +
+Map$addLayer(poi)
 
 # One can adjust the colors of visualized objects using the "visParams"
 # parameter.
 Map$centerObject(aoi, zoom = 8)
-  Map$addLayer(aoi, visParams = list(color = "red")) +
-  Map$addLayer(poi, visParams = list(color = "blue"))
+Map$addLayer(aoi, visParams = list(color = "red")) +
+Map$addLayer(poi, visParams = list(color = "blue"))
 
 # If you have many objects in a plot, it also makes sense to name each object
 # when visualizing
 Map$centerObject(aoi, zoom = 8)
-  Map$addLayer(aoi, visParams = list(color = "red"), name = "AOI") +
-  Map$addLayer(poi, visParams = list(color = "blue"), name = "POI")
+Map$addLayer(aoi, visParams = list(color = "red"), name = "AOI") +
+Map$addLayer(poi, visParams = list(color = "blue"), name = "POI")
   
 # Now we can use the area of interest to subset our data accordingly
 data <- data$filterBounds(aoi)
@@ -102,7 +103,7 @@ data$first()$getInfo()
 data <- data$filter(ee$Filter$eq("country", "CHE"))
 ee_print(data)
 
-# The entire process can of course be chained into a much simpler "piped"
+# The entire process can of course be chained into a much cleaner "piped"
 # workflow.
 data <- ee$ImageCollection("WorldPop/GP/100m/pop")$
   filterBounds(aoi)$
@@ -118,7 +119,7 @@ Map$addLayer(data$first())
 Map$centerObject(poi, zoom = 7)
 Map$addLayer(data$first(), visParams = list(palette = magma(20)))
 
-# Finally, we can stretch the colors by providing a new minimum and maximum
+# Finally, we can stretch the colors by specifying a new minimum and maximum
 # value
 Map$centerObject(poi, zoom = 7)
 Map$addLayer(data$first(), visParams = list(palette = magma(20), min = 0, max = 10))
@@ -133,7 +134,7 @@ data_sqrt <- data$map(img_sqrt)
 Map$centerObject(poi, zoom = 7)
 Map$addLayer(data_sqrt$first(), visParams = list(palette = magma(20), min = 0, max = 5))
 
-# We can also apply a function to summarize multiple images
+# We can also "reduce" an ImageCollection using a summarizing function
 average <- data$mean()
 
 # Note that this turns the ImageCollection into an Image
@@ -143,7 +144,9 @@ ee_print(average)
 Map$centerObject(poi, zoom = 7)
 Map$addLayer(average, visParams = list(palette = magma(20), min = 0, max = 20))
 
-# We can even download the data (either a single image or the entire collection)
+# We can even download the data (either a single Image or the entire
+# ImageCollection)
+
 # 1) For single Image
 filename <- tempfile(fileext = ".tif")
 ee_as_raster(data$first()
@@ -177,3 +180,4 @@ extracted_poi <- ee_extract(data, poi, fun = ee$Reducer$mean())
 # Check them
 extracted_aoi
 extracted_poi
+

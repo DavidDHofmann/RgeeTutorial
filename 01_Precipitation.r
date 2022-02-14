@@ -11,7 +11,7 @@ rm(list = ls())
 library(rgee)       # Interface to google earth engine
 library(tidyverse)  # For data wrangling
 library(lubridate)  # To handle dates
-library(raster)     # To handle spatial data
+library(viridis)    # For nice colors
 
 # We first need to initialize rgee to log into our google account etc.
 ee_Initialize()
@@ -28,7 +28,7 @@ aoi <- ee$Geometry$Polygon(
 
 # Visualize it
 Map$centerObject(aoi, zoom = 6)
-Map$addLayer(aoi, opacity = 0.2)
+Map$addLayer(aoi, opacity = 0.2, name = "AOI")
 
 # We will use the CHIRPS daily dataset for this. This is an image collection
 # with daily images collected over multiple years
@@ -36,34 +36,44 @@ Map$addLayer(aoi, opacity = 0.2)
 chirps <- ee$ImageCollection("UCSB-CHG/CHIRPS/DAILY")
 ee_print(chirps)
 
-# Check the spatial resolution
+# Check the spatial resolution (in meters)
 metadata <- ee_print(chirps)
 metadata$band_nominal_scale
 
 # We can see that the collection contains several thousand images, as it spans
 # several years. Let's subset the data by year
 chirps <- ee$ImageCollection("UCSB-CHG/CHIRPS/DAILY")$
-  filterDate("2019", "2022")$
+  filterDate("2020", "2022")$
   filterBounds(aoi)
 
 # Check again
 ee_print(chirps)
 
+# Note that by default the image metadata is derived from the first of all
+# images (index = 0). However, we could also request the metadata of a specific
+# image by providing its index.
+ee_print(chirps, img_index = 10)
+
 # We can visualize one of the layers
 Map$centerObject(aoi)
-Map$addLayer(chirps$first(), visParams = list(min = 1, max = 20, palette = turbo(12)), name = "CHIRPS")
+Map$addLayer(chirps$first()
+  , visParams = list(min = 1, max = 20, palette = turbo(12))
+  , name      = "CHIRPS"
+)
 
-# It's actually quite easy to compute the average rainfall across all dates
+# It's now quite easy to compute the average rainfall across all dates. We
+# simply need to apply the appropriate "reducer" function
 precip_mean <- chirps$mean()
 
-# Visualize it (this might be a bit slow)
-Map$centerObject(aoi, zoom = 4)
+# Visualize the resulting image (this might be a bit slow)
+Map$centerObject(aoi, zoom = 5)
 Map$addLayer(precip_mean, visParams = list(min = 1, max = 10, palette = turbo(12)), name = "CHIRPS Mean")
 
 # Anyways, let's come back to our initial goal and figure out daily rainfalls
 # across our area of interest. We can find out the exact numbers by "extracting"
 # precipitation values below the polygon "aoi" polygon. This will take a few
-# seconds though
+# seconds though. Also note that we need to provide a function which determines
+# how extracted numbers across a polygon are treated.
 precip <- ee_extract(
     x     = chirps
   , y     = aoi
