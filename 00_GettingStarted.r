@@ -116,11 +116,6 @@ Map$addLayer(data$first())
 Map$centerObject(poi, zoom = 7)
 Map$addLayer(data$first(), visParams = list(palette = magma(20)))
 
-# Finally, we can stretch the colors by specifying a new minimum and maximum
-# value
-Map$centerObject(poi, zoom = 7)
-Map$addLayer(data$first(), visParams = list(palette = magma(20), min = 0, max = 10))
-
 # It is also pretty easy to apply a function to each image in an ImageCollection
 img_sqrt <- function(img) {
   img$sqrt()
