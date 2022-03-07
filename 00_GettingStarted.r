@@ -22,9 +22,6 @@ ee_check()
 # then to copy the link of the product into our r-script.
 data <- ee$Image("CGIAR/SRTM90_V4")
 
-# Alternatively, we could also access the same dataset as follows
-data <- ee$Image$Dataset$CGIAR_SRTM90_V4
-
 # Note that R does not load any data at this point, but merely opens a
 # connection to the Google Earth Engine API. Unless data is specifically needed
 # for a task, Earth Engine will not need to compute anything. This is called
