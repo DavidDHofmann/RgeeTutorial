@@ -22,6 +22,12 @@ ee_check()
 # then to copy the link of the product into our r-script.
 data <- ee$Image("CGIAR/SRTM90_V4")
 
+<<<<<<< HEAD
+# Alternatively, we could also access the same dataset as follows
+data <- ee$Image$Dataset$CGIAR_SRTM90_V4
+
+=======
+>>>>>>> 6be14ed77c3b1ba24100bcf35ec77dd8f812b358
 # Note that R does not load any data at this point, but merely opens a
 # connection to the Google Earth Engine API. Unless data is specifically needed
 # for a task, Earth Engine will not need to compute anything. This is called
@@ -116,6 +122,14 @@ Map$addLayer(data$first())
 Map$centerObject(poi, zoom = 7)
 Map$addLayer(data$first(), visParams = list(palette = magma(20)))
 
+<<<<<<< HEAD
+# Finally, we can stretch the colors by specifying a new minimum and maximum
+# value
+Map$centerObject(poi, zoom = 7)
+Map$addLayer(data$first(), visParams = list(palette = magma(20), min = 0, max = 10))
+
+=======
+>>>>>>> 6be14ed77c3b1ba24100bcf35ec77dd8f812b358
 # It is also pretty easy to apply a function to each image in an ImageCollection
 img_sqrt <- function(img) {
   img$sqrt()

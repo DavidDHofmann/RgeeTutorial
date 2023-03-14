@@ -16,9 +16,12 @@ library(viridis)    # For nice colors
 # We first need to initialize rgee to log into our google account etc.
 ee_Initialize()
 
+<<<<<<< HEAD
+=======
 # Make sure all python dependencies are installed
 ee_check()
 
+>>>>>>> 6be14ed77c3b1ba24100bcf35ec77dd8f812b358
 # Define an area of interest, this time in Bots :)
 aoi <- ee$Geometry$Polygon(
   list(
